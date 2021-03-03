@@ -6,17 +6,18 @@ using namespace std;
 //#define FIELD_NAME(n) field ## n
 #define POINT_ITEM(a, x, y) (*((*(a + (y))) + (x)))
 
-//enum SHIPS {EMPTY = '_', singledeck = '1', doubledeck = '2', trippledeck = '3', fourdeck = '4'};
-//enum TURNS {SHIP = '#', DAMAGE = 'X', MISS = 'o'};
+enum pointStatus {EMPTY = '_', MISS = 'o', SHIP = '#', DAMAGED = 'X'};
 
 class Ship {
 public:
   Ship() {
     this -> descCount = 0;
+    this ->shipStatus = false;
   }
 
   Ship(int descCount) {
     this -> descCount = descCount;
+    this -> shipStatus = true;
   }
 
   int GetDescCount() {
@@ -42,6 +43,7 @@ public:
   void SetDescStartY(int value) {
     descStartY = value;
   }
+
   int GetDescEndX(){
     return descEndX;
   }
@@ -58,13 +60,21 @@ public:
     descEndY = value;
   }
 
+  bool GetShipStatus() {
+    return shipStatus;
+  }
+  ~Ship() {
+
+  }
+
 private:
-  enum shipStatus {WHOLE = '#', DAMAGED = 'X'};
+  enum point{WHOLE = '#', DAMAGED = 'X'};
   int descCount;
   int descStartX;
   int descStartY;
   int descEndX;
   int descEndY;
+  bool shipStatus;
 };
 
 class Field {
@@ -77,21 +87,24 @@ public:
     for (int y = 0; y < (this -> sizeY); y++) {
         *(this -> map + y) = new pointStatus[this -> sizeX];
         for (int x = 0; x < (this -> sizeX); x++) {
-            *(*(this -> map + y) + x) = EMPTY;
+            setPoint(x, y, EMPTY);
           }
       }
 
-    this -> ship[0].SetDescCount(4);
-
     for (int i = 1; i < 3; i++) {
-        this -> ship[i].SetDescCount(3);
+        this -> ship[i] = Ship(3);
       }
     for (int i = 3; i < 6; i++) {
-        this -> ship[i].SetDescCount(2);
+        this -> ship[i] = Ship(2);
       }
     for (int i = 6; i < 10; i++) {
-        this -> ship[i].SetDescCount(1);
+        this -> ship[i] = Ship(1);
       }
+    this -> ship[0] = 4;
+  }
+
+  Ship* getShip(int i) {
+    return &ship[i];
   }
 
   int getSizeX() {
@@ -102,29 +115,39 @@ public:
     return sizeY;
   }
 
-
   char getPoint(int x, int y) {
     return *(*(this->map + y) + x);
   }
 
-  void setPoint(int x, int y) {
+  void setPoint(int x, int y, pointStatus status) {
+    *(*(this -> map + y) + x) = status;
+  }
+
+  int Shot(int x, int y, Field &field) {
+    x--;
+    y--;
+    if (field.getPoint(x, y) == EMPTY) {
+        setPoint(x, y, MISS);
+        return 0;
+      }
+    else if (field.getPoint(x, y) == SHIP){
+        setPoint(x, y, DAMAGED);
+        return 1;
+      }
+    else {
+        return -1;
+      }
+  }
+
+  ~Field() {
 
   }
 
-  void Shot(int x, int y) {
-
-  }
-
-  Ship* getShip(int i) {
-    return &ship[i];
-  }
 private:
   int sizeX;
   int sizeY;
-  enum pointStatus {EMPTY = '_', MISS = 'o', WHOLE = '#', DAMAGED = 'X'};
   pointStatus** map;
   Ship ship[10];
-
 };
 
 
@@ -149,89 +172,34 @@ public:
       }
   }
 
+  bool turnHuman(Field &field1, Field &field10) {
+    int x = -1, y = -1;
+
+    cout << "\n\tУкажите строку и столбец: ";
+
+    cin >> y >> x;
+    field1.Shot(x, y, field10);
+    return true;
+  }
+
+  bool CheckWin() {
+
+  }
 private:
 
 };
 
-
-
-//typedef struct {
-//  int sizeX;
-//  int sizeY;
-//  int singledeckcount;
-//  int doubledeckcount;
-//  int trippledeckcount;
-//  int fourdeckcount;
-//  SHIPS** map;
-//  TURNS showturn;
-//} Field;
-
-//char getValue(SHIPS** array, const int x, const int y) {
-//  return POINT_ITEM(array, x, y);
-//}
-
-//void setValue(SHIPS** array, const int x, const int y, SHIPS value) {
-//  POINT_ITEM(array, x, y) = value;
-//}
-
-//int checkShip(Field &field, int x, int y) {
-//  if (getValue(field.map, x - 1, y) == SHIP) {
-
-//    }
-//}
-
-//void initField(Field &field) {
-//    field.sizeX = 10;
-//    field.sizeY = 10;
-//    field.map = new SHIPS* [field.sizeY];
-
-//    for (int y = 0; y < field.sizeY; y++) {
-//        *(field.map + y) = new SHIPS [field.sizeX];
-//      for (int x = 0; x < field.sizeX; x++){
-//          setValue(field.map, x, y, EMPTY);
-//        }
-//      }
-//}
-
-//void printDesc(Field &fieldhuman, Field &fieldai) {
-//  system("clear");
-//  cout << "Морской бой. Новая игра \n" << endl;
-//  cout << setiosflags(ios::right);
-//  cout << setw(4) << "" << "1 2 3 4 5 6 7 8 9 10";
-//  cout << "\t" << "1 2 3 4 5 6 7 8 9 10" << endl;
-
-//  for (int y = 0; y < fieldhuman.sizeY; y++) {
-//      cout << setw(3) << y + 1 << "|";
-//      for (int x = 0; x < fieldhuman.sizeX; x++) {
-//          cout << (char)((getValue(fieldhuman.map, x, y) != EMPTY) ? SHIP : EMPTY) << "|";
-//        }
-//      cout << setw(4)<< "" << setw(3) << y + 1 << "|";
-//      for (int x = 0; x < fieldai.sizeX; x++) {
-//          cout << (char)((getValue(fieldai.map, x, y) != EMPTY) ? SHIP : EMPTY) << "|";
-//        }
-//      cout << endl;
-//      }
-//  cout << endl;
-//}
-
-//void turnHuman(Field field) {
-//  int x, y;
-//  cout << "Укажите, куда поставить корабль (x y): ";
-//  cin >> x >> y;
-//  x--;
-//  y--;
-//  setValue(field.map, x, y, singledeck);
-//}
-
 int main() {
-
-  Field field0, field1;
+  Field field0, field1, field10;
   Board board;
 
-  field0.getShip(1)->GetDescCount();
+  field10.setPoint(7, 4, SHIP);
 
+  while (true) {
+      board.printBoard(field0, field1, "\t Морской бой. \t Новая игра \n");
+      board.turnHuman(field1, field10);
+    }
 
-  board.printBoard(field0, field1, "\t Морской бой. \t Новая игра \n");
 
   return 0;
 }
