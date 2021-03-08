@@ -8,7 +8,7 @@ using namespace std;
 #define VAR_NAME(var ,n) var ## n
 #define POINT_ITEM(a, x, y) (*((*(a + (y))) + (x)))
 
-enum pointStatus {EMPTY = '_', MISS = 'o', SHIP = '#', DAMAGED = 'X'};
+enum pointStatus {EMPTY = '_', MISS = '*', SHIP = '#', DAMAGED = 'X'};
 
 class Ship {
 public:
@@ -226,7 +226,7 @@ public:
                   }
               }
           }
-        else if (startx == 9 && starty > 0 && endy < 9) {//если корабль прижат к нижней границе
+        else if (starty == 9 && startx > 0 && endx < 9) {//если корабль прижат к нижней границе
             for (int i = 0; i < descCount; i++) {
                 char point0 = this -> getPoint((startx + i) + 0, starty - 0);
                 char point1 = this -> getPoint((startx + i) - 1, starty - 0);
@@ -393,6 +393,7 @@ public:
             return false;
           }
       }
+
     return false;
   }
 
@@ -446,9 +447,10 @@ public:
         setPoint(x, y, DAMAGED);
         return 1;
       }
-    else {
+    else if (field.getPoint(x, y) == MISS){
         return -1;
       }
+    return -1;
   }
 
   ~Field() {
@@ -497,30 +499,50 @@ public:
     return fieldAiShow.Shot(x, y, fieldAiHide);
   }
 
+  int turnAi(Field &field) {
+    int x = 0, y = 0;
+
+    random_device rd;
+    mt19937 mt(rd());
+    uniform_real_distribution <double> distx(0, field.getSizeX());
+    uniform_real_distribution <double> disty(0, field.getSizeY());
+
+    do {
+        x = distx(mt);
+        y = disty(mt);
+      }
+    while (field.getPoint(x, y) == MISS || field.getPoint(x, y) == DAMAGED);
+    return field.Shot(x, y, field);
+  }
+
   bool setHumanShips(Field &field, Field &fieldHuman, Field &fieldAiShow) {
-    int startx = -1, starty = -1, endx = -1, endy = -1;
+    int direction, startx = -1, starty = -1, endx = -1, endy = -1;
     bool check;
 
-    for(int i = 0; i < 10; i++) {//ОТЛАДОЧНОЕ УСЛОВИЕ (i < 2)
+    for(int i = 0; i < 2; i++) {//ОТЛАДОЧНОЕ УСЛОВИЕ (i < 2)
         do {
-            this->printBoard(fieldHuman, fieldAiShow, "Расстановка кораблей");
-
             do {
+                this->printBoard(fieldHuman, fieldAiShow, "Расстановка кораблей \n");
+
                 cout << "\nУкажите строку и столбец начала ";
-                cout << field.getShip(i)->GetDescCount() << "-палубного корабля: ";
+                cout << field.getShip(i) -> GetDescCount() << "-палубного корабля: ";
                 cin >> starty >> startx;
                 startx--;
                 starty--;
+
+                cout << "\nУкажите направление корабля (0 - вертикальное, 1 - горизонтальное): ";
+                cin >> direction;
+
+                if (direction == 0) {
+                    endx = startx;
+                    endy = starty + field.getShip(i) -> GetDescCount() - 1;
+                  }
+                else if (direction == 1) {
+                    endx = startx + field.getShip(i) -> GetDescCount() - 1;
+                    endy = starty;
+                  }
               }
-            while (((startx < 0 || starty < 0) || (startx > 9 || starty > 9)) || (field.getPoint(startx, starty) != EMPTY));
-            do {
-                cout << "Укажите строку и столбец конца ";
-                cout << field.getShip(i)->GetDescCount() << "-палубного корабля: ";
-                cin >> endy >> endx;
-                endx--;
-                endy--;
-              }
-            while (((endx < 0 || endy < 0) || (endx > 9 || endy > 9)) || (field.getPoint(startx, starty) != EMPTY) || (field.getPoint(endx, endy) != EMPTY) || (startx > endx || starty > endy));
+            while (((startx < 0 || starty < 0) || (startx > 9 || starty > 9)) || (field.getPoint(startx, starty) != EMPTY) || (endx < 0 || endy < 0) || (endx > 9 || endy > 9) || (field.getPoint(endx, endy) != EMPTY));
             check = field.setShip(i, startx, starty, endx, endy);
           }
         while (!check);
@@ -535,7 +557,7 @@ public:
     mt19937 mt(rd());
     uniform_real_distribution <double> distx(0, field.getSizeX());
     uniform_real_distribution <double> disty(0, field.getSizeY());
-    uniform_real_distribution <double> distdir(0, 4);
+    uniform_real_distribution <double> distdir(0, 100);
 
     for (int i = 0; i < 10; i++) {
         do {
@@ -550,7 +572,6 @@ public:
 
                 endx_v = startx;
                 endy_v = starty + field.getShip(i) -> GetDescCount() - 1;
-
                 endx_h = startx + field.getShip(i) -> GetDescCount() - 1;
                 endy_h = starty;
               }
@@ -559,11 +580,10 @@ public:
         while (!field.checkShipSpace(i, startx, starty, endx_h, endy_h) || !field.checkShipSpace(i, startx, starty, endx_v, endy_v));
 
         direction = distdir(mt);
-
-        if (field.checkShipSpace(i, startx, starty, endx_h, endy_h) && direction > 2) {
+        if (field.checkShipSpace(i, startx, starty, endx_h, endy_h) && direction < 51) {
             field.setShip(i, startx, starty, endx_h, endy_h);
           }
-        else if (field.checkShipSpace(i, startx, starty, endx_v, endy_v) && direction < 3) {
+        else if (field.checkShipSpace(i, startx, starty, endx_v, endy_v) && direction > 50) {
             field.setShip(i, startx, starty, endx_v, endy_v);
           }
       }
@@ -582,12 +602,13 @@ int main() {
   Field fieldHuman, fieldAiShow, fieldAiHide;
   Board board;
 
-  board.setAiShips(fieldAiHide, fieldHuman, fieldAiHide);
+  board.setAiShips(fieldAiHide, fieldHuman, fieldAiShow);
+  board.setHumanShips(fieldHuman, fieldHuman, fieldAiShow);
 
   while (true) {
-      board.printBoard(fieldHuman, fieldAiHide, "\t Морской бой. \t Новая игра \n");
-//      board.setHumanShips(fieldHuman, fieldHuman, fieldAiShow);
+      board.printBoard(fieldHuman, fieldAiShow, "\t Морской бой. \t Новая игра \n");
       board.turnHuman(fieldAiShow, fieldAiHide);
+      board.turnAi(fieldHuman);
     }
 
   return 0;
