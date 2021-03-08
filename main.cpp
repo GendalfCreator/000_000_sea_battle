@@ -82,9 +82,9 @@ private:
 
 class Field {
 public:
-  Field() {
-    sizeX = 10;
-    sizeY = 10;
+  Field(int sizex, int sizey) {
+    sizeX = sizex;
+    sizeY = sizey;
 
     this -> map = new pointStatus*[this -> sizeY];
     for (int y = 0; y < (this -> sizeY); y++) {
@@ -131,125 +131,19 @@ public:
     int descCheck = 0;
 
     if (starty == endy) {//Если корабль раположен горизонтально
-        if (startx == 0 && starty == 0) {//Если координаты начала корабля упираются в угол 0 0
-            for (int i = 0; i < descCount; i++) {
-                char point0 = this -> getPoint((startx + i) + 0, starty + 0);
-                char point1 = this -> getPoint((startx + i) + 0, starty + 1);
-                char point2 = this -> getPoint((startx + i) + 1, starty + 1);
-                char point3 = this -> getPoint((startx + i) + 1, starty + 0);
-
-                if (point0 != SHIP && point1 != SHIP && point2 != SHIP && point3 != SHIP) {
-                    descCheck++;
-                  }
-              }
-          }
-        else if (startx > 0 && starty == 0 && endx < 9) {//Если корабль прижат к верхней границе
-            for (int i = 0; i < descCount; i++) {
-                char point0 = this -> getPoint((startx + i) + 0, starty + 0);
-                char point1 = this -> getPoint((startx + i) + 0, starty + 1);
-                char point2 = this -> getPoint((startx + i) + 1, starty + 1);
-                char point3 = this -> getPoint((startx + i) + 1, starty + 0);
-                char point4 = this -> getPoint((startx + i) - 1, starty + 0);
-                char point5 = this -> getPoint((startx + i) - 1, starty + 1);
-
-                if (point0 != SHIP && point1 != SHIP && point2 != SHIP && point3 != SHIP && point4 != SHIP && point5 != SHIP) {
-                    descCheck++;
-                  }
-              }
-          }
-        else if (endx == 9 && endy== 0) {//Если координаты конца корабля упираются в угол 9 0
-            for (int i = 0; i < descCount; i++) {
-                char point0 = this -> getPoint((startx + i) - 0, starty + 0);
-                char point1 = this -> getPoint((startx + i) - 1, starty + 0);
-                char point2 = this -> getPoint((startx + i) - 1, starty + 1);
-                char point3 = this -> getPoint((startx + i) - 0, starty + 1);
-
-                if (point0 != SHIP && point1 != SHIP && point2 != SHIP && point3 != SHIP) {
-                    descCheck++;
-                  }
-              }
-          }
-        else if (startx == 0 && starty > 0 && starty < 9) {//Если корабль прижат к левой границе
-            for (int i = 0; i < descCount; i++) {
-                char point0 = this -> getPoint((startx + i) + 0, starty + 0);
-                char point1 = this -> getPoint((startx + i) + 0, starty - 1);
-                char point2 = this -> getPoint((startx + i) + 1, starty - 1);
-                char point3 = this -> getPoint((startx + i) + 1, starty + 0);
-                char point4 = this -> getPoint((startx + i) + 1, starty + 1);
-                char point5 = this -> getPoint((startx + i) - 0, starty + 1);
-
-                if (point0 != SHIP && point1 != SHIP && point2 != SHIP && point3 != SHIP && point4 != SHIP && point5 != SHIP) {
-                    descCheck++;
-                  }
-              }
-          }
-        else if ((startx > 0 && endx < 9) && (starty > 0 && endy < 9)) {//Если корабль не касается границ поля
-            for (int i = 0; i < descCount; i++) {//Проверить точки на соприкосновение
-                char point0 = this -> getPoint((startx + i) - 0, (starty) - 1);
-                char point1 = this -> getPoint((startx + i) - 1, (starty) - 1);
-                char point2 = this -> getPoint((startx + i) - 1, (starty) - 0);
-                char point3 = this -> getPoint((startx + i) - 1, (starty) + 1);
-                char point4 = this -> getPoint((startx + i) - 0, (starty) + 1);
-                char point5 = this -> getPoint((startx + i) + 1, (starty) + 1);
-                char point6 = this -> getPoint((startx + i) + 1, (starty) + 0);
-                char point7 = this -> getPoint((startx + i) + 1, (starty) - 1);
-                char point8 = this -> getPoint((startx + i) - 0, (starty) - 0);
-                //Если соприкосновения или занятых точек нету
-                if (point0 != SHIP && point1 != SHIP &&  point2 != SHIP && point3 != SHIP && point4 != SHIP && point5 != SHIP && point6 != SHIP && point7 != SHIP && point8 != SHIP) {
-                    descCheck++;//прибавить свободную клетку
-                  }
-              }
-          }
-        else if (endx == 9 && starty > 0 && endy < 9) {//если прижат к правой границе
-            for (int i = 0; i < descCount; i++) {
-                char point0 = this -> getPoint((startx + i) + 0, starty + 0);
-                char point1 = this -> getPoint((startx + i) + 0, starty - 1);
-                char point2 = this -> getPoint((startx + i) - 1, starty - 1);
-                char point3 = this -> getPoint((startx + i) - 1, starty + 0);
-                char point4 = this -> getPoint((startx + i) - 1, starty + 1);
-                char point5 = this -> getPoint((startx + i) - 0, starty + 1);
-
-                if (point0 != SHIP && point1 != SHIP && point2 != SHIP && point3 != SHIP && point4 != SHIP && point5 != SHIP) {
-                    descCheck++;
-                  }
-              }
-          }
-        else if (startx == 0 && starty == 9) {//если начало в углу 0 9
-            for (int i = 0; i < descCount; i++) {
-                char point0 = this -> getPoint((startx + i) + 0, starty - 0);
-                char point1 = this -> getPoint((startx + i) + 0, starty - 1);
-                char point2 = this -> getPoint((startx + i) + 1, starty - 1);
-                char point3 = this -> getPoint((startx + i) + 1, starty - 0);
-
-                if (point0 != SHIP && point1 != SHIP && point2 != SHIP && point3 != SHIP) {
-                    descCheck++;
-                  }
-              }
-          }
-        else if (starty == 9 && startx > 0 && endx < 9) {//если корабль прижат к нижней границе
-            for (int i = 0; i < descCount; i++) {
-                char point0 = this -> getPoint((startx + i) + 0, starty - 0);
-                char point1 = this -> getPoint((startx + i) - 1, starty - 0);
-                char point2 = this -> getPoint((startx + i) - 1, starty - 1);
-                char point3 = this -> getPoint((startx + i) + 0, starty - 1);
-                char point4 = this -> getPoint((startx + i) + 1, starty - 1);
-                char point5 = this -> getPoint((startx + i) + 1, starty - 0);
-
-                if (point0 != SHIP && point1 != SHIP && point2 != SHIP && point3 != SHIP && point4 != SHIP && point5 != SHIP) {
-                    descCheck++;
-                  }
-              }
-          }
-        else if (endx == 9 && endy == 9) {//если корабль упирается в угол 9 9
-            for (int i = 0; i < descCount; i++) {
-                char point0 = this -> getPoint((startx + i) - 0, starty - 0);
-                char point1 = this -> getPoint((startx + i) - 1, starty - 0);
-                char point2 = this -> getPoint((startx + i) - 1, starty - 1);
-                char point3 = this -> getPoint((startx + i) - 0, starty - 1);
-
-                if (point0 != SHIP && point1 != SHIP && point2 != SHIP && point3 != SHIP) {
-                    descCheck++;
-                  }
+        for (int i = 0; i < descCount; i++) {//Проверить точки на соприкосновение
+            char point0 = this -> getPoint((startx + i) - 0, (starty) - 1);
+            char point1 = this -> getPoint((startx + i) - 1, (starty) - 1);
+            char point2 = this -> getPoint((startx + i) - 1, (starty) - 0);
+            char point3 = this -> getPoint((startx + i) - 1, (starty) + 1);
+            char point4 = this -> getPoint((startx + i) - 0, (starty) + 1);
+            char point5 = this -> getPoint((startx + i) + 1, (starty) + 1);
+            char point6 = this -> getPoint((startx + i) + 1, (starty) + 0);
+            char point7 = this -> getPoint((startx + i) + 1, (starty) - 1);
+            char point8 = this -> getPoint((startx + i) - 0, (starty) - 0);
+            //Если соприкосновения или занятых точек нету
+            if (point0 != SHIP && point1 != SHIP &&  point2 != SHIP && point3 != SHIP && point4 != SHIP && point5 != SHIP && point6 != SHIP && point7 != SHIP && point8 != SHIP) {
+                descCheck++;//прибавить свободную клетку
               }
           }
 
@@ -262,127 +156,19 @@ public:
       }
 
     else if (startx == endx) {//Если корабль расположен вертикально
-        if (startx == 0 && starty == 0) {//Если координаты начала корабля упираются в угол 0 0
-            for (int i = 0; i < descCount; i++) {
-                char point0 = this -> getPoint(startx + 0, (starty + i) + 0);
-                char point1 = this -> getPoint(startx + 0, (starty + i) + 1);
-                char point2 = this -> getPoint(startx + 1, (starty + i) + 1);
-                char point3 = this -> getPoint(startx + 1, (starty + i) + 0);
-
-                if (point0 != SHIP && point1 != SHIP && point2 != SHIP && point3 != SHIP) {
-                    descCheck++;
-                  }
-              }
-          }
-        else if (startx > 0 && startx < 9 && starty == 0) {//Если корабль прилегает к верхней границе
-            for (int i = 0; i < descCount; i++) {
-                char point0 = this -> getPoint(startx + 0, (starty + i) + 0);
-                char point1 = this -> getPoint(startx - 1, (starty + i) + 0);
-                char point2 = this -> getPoint(startx - 1, (starty + i) + 1);
-                char point3 = this -> getPoint(startx + 0, (starty + i) + 1);
-                char point4 = this -> getPoint(startx + 1, (starty + i) + 1);
-                char point5 = this -> getPoint(startx + 1, (starty + i) + 0);
-
-                if (point0 != SHIP && point1 != SHIP && point2 != SHIP && point3 != SHIP && point4 != SHIP && point5 != SHIP) {
-                    descCheck++;
-                  }
-              }
-          }
-        else if (startx == 9 && starty == 0) {//Если корабль упирается в угол 9 0
-            for (int i = 0; i < descCount; i++) {
-                char point0 = this -> getPoint(startx - 0, (starty + i) + 0);
-                char point1 = this -> getPoint(startx - 1, (starty + i) + 0);
-                char point2 = this -> getPoint(startx - 1, (starty + i) + 1);
-                char point3 = this -> getPoint(startx - 0, (starty + i) + 1);
-
-                if (point0 != SHIP && point1 != SHIP && point2 != SHIP && point3 != SHIP) {
-                    descCheck++;
-                  }
-              }
-          }
-        else if (startx == 0 && starty > 0 && endy < 9) {//Если корабль прилегает к левой границе
-            for (int i = 0; i < descCount; i++) {
-                char point0 = this -> getPoint(startx + 0, (starty + i) + 0);
-                char point1 = this -> getPoint(startx + 0, (starty + i) - 1);
-                char point2 = this -> getPoint(startx + 1, (starty + i) - 1);
-                char point3 = this -> getPoint(startx + 1, (starty + i) + 0);
-                char point4 = this -> getPoint(startx + 1, (starty + i) + 1);
-                char point5 = this -> getPoint(startx + 0, (starty + i) + 1);
-
-                if (point0 != SHIP && point1 != SHIP && point2 != SHIP && point3 != SHIP && point4 != SHIP && point5 != SHIP) {
-                    descCheck++;
-                  }
-              }
-          }
-        else if ((startx > 0 && starty < 9) && (endx > 0 && endy < 9)) {//Если корабль не прилегает к границам
-            for (int i = 0; i < descCount; i++) {//Проверить точки на соприкосновение
-                char point0 = this -> getPoint(startx - 0, (starty + i) - 1);
-                char point1 = this -> getPoint(startx - 1, (starty + i) - 1);
-                char point2 = this -> getPoint(startx - 1, (starty + i) - 0);
-                char point3 = this -> getPoint(startx - 1, (starty + i) + 1);
-                char point4 = this -> getPoint(startx - 0, (starty + i) + 1);
-                char point5 = this -> getPoint(startx + 1, (starty + i) + 1);
-                char point6 = this -> getPoint(startx + 1, (starty + i) + 0);
-                char point7 = this -> getPoint(startx + 1, (starty + i) - 1);
-                char point8 = this -> getPoint(startx - 0, (starty + i) - 0);
-                //Если соприкосновения или занятых точек нету
-                if (point0 != SHIP && point1 != SHIP &&  point2 != SHIP && point3 != SHIP && point4 != SHIP && point5 != SHIP && point6 != SHIP && point7 != SHIP && point8 != SHIP) {
-                    descCheck++;//прибавить свободную клетку
-                  }
-              }
-
-          }
-        else if (startx == 9 && starty > 0 && endy < 9) {//Если корабль прилегает к правой границе
-            for (int i = 0; i < descCount; i++) {
-                char point0 = this -> getPoint(startx + 0, (starty + i) + 0);
-                char point1 = this -> getPoint(startx + 0, (starty + i) - 1);
-                char point2 = this -> getPoint(startx - 1, (starty + i) - 1);
-                char point3 = this -> getPoint(startx - 1, (starty + i) + 0);
-                char point4 = this -> getPoint(startx - 1, (starty + i) + 1);
-                char point5 = this -> getPoint(startx - 0, (starty + i) + 1);
-
-                if (point0 != SHIP && point1 != SHIP && point2 != SHIP && point3 != SHIP && point4 != SHIP && point5 != SHIP) {
-                    descCheck++;
-                  }
-              }
-          }
-        else if (startx == 0 && endy == 9) {//Если корабль упирается в угол 0 9
-            for (int i = 0; i < descCount; i++) {
-                char point0 = this -> getPoint(startx + 0, (starty + i) - 0);
-                char point1 = this -> getPoint(startx + 0, (starty + i) - 1);
-                char point2 = this -> getPoint(startx + 1, (starty + i) - 1);
-                char point3 = this -> getPoint(startx + 1, (starty + i) - 0);
-
-                if (point0 != SHIP && point1 != SHIP && point2 != SHIP && point3 != SHIP) {
-                    descCheck++;
-                  }
-              }
-
-          }
-        else if (startx > 0 && startx < 9 && endy == 9) {//Если корабль прилегает к нижней границе
-            for (int i = 0; i < descCount; i++) {
-                char point0 = this -> getPoint(startx + 0, (starty + i) - 0);
-                char point1 = this -> getPoint(startx - 1, (starty + i) - 0);
-                char point2 = this -> getPoint(startx - 1, (starty + i) - 1);
-                char point3 = this -> getPoint(startx + 0, (starty + i) - 1);
-                char point4 = this -> getPoint(startx + 1, (starty + i) - 1);
-                char point5 = this -> getPoint(startx + 1, (starty + i) - 0);
-
-                if (point0 != SHIP && point1 != SHIP && point2 != SHIP && point3 != SHIP && point4 != SHIP && point5 != SHIP) {
-                    descCheck++;
-                  }
-              }
-          }
-        else if (endx == 9 && endy == 9) {//Если корабль упирается в угол 9 9
-            for (int i = 0; i < descCount; i++) {
-                char point0 = this -> getPoint(startx - 0, (starty + i) - 0);
-                char point1 = this -> getPoint(startx - 1, (starty + i) - 0);
-                char point2 = this -> getPoint(startx - 1, (starty + i) - 1);
-                char point3 = this -> getPoint(startx - 0, (starty + i) - 1);
-
-                if (point0 != SHIP && point1 != SHIP && point2 != SHIP && point3 != SHIP) {
-                    descCheck++;
-                  }
+        for (int i = 0; i < descCount; i++) {//Проверить точки на соприкосновение
+            char point0 = this -> getPoint(startx - 0, (starty + i) - 1);
+            char point1 = this -> getPoint(startx - 1, (starty + i) - 1);
+            char point2 = this -> getPoint(startx - 1, (starty + i) - 0);
+            char point3 = this -> getPoint(startx - 1, (starty + i) + 1);
+            char point4 = this -> getPoint(startx - 0, (starty + i) + 1);
+            char point5 = this -> getPoint(startx + 1, (starty + i) + 1);
+            char point6 = this -> getPoint(startx + 1, (starty + i) + 0);
+            char point7 = this -> getPoint(startx + 1, (starty + i) - 1);
+            char point8 = this -> getPoint(startx - 0, (starty + i) - 0);
+            //Если соприкосновения или занятых точек нету
+            if (point0 != SHIP && point1 != SHIP &&  point2 != SHIP && point3 != SHIP && point4 != SHIP && point5 != SHIP && point6 != SHIP && point7 != SHIP && point8 != SHIP) {
+                descCheck++;//прибавить свободную клетку
               }
           }
 
@@ -464,22 +250,26 @@ private:
   Ship ship[10];
 };
 
+class FieldShow : public Field {
+
+};
+
 class Board {
 public:
-  void printBoard(Field &fieldHuman, Field &fieldAiShow, string message) {
+  void printBoard(Field &fieldHuman, Field &fieldAi, string message) {
     system("clear");
     cout << message << endl;
     setiosflags(ios::right);
     cout << setw(5) << "" << "1 2 3 4 5 6 7 8 9 10";
     cout << setw(6) << "" << "1 2 3 4 5 6 7 8 9 10" << endl;
-    for (int y = 0; y < fieldHuman.getSizeY(); y++) {
-        cout << setw(4) << y+1 << "|";
-        for (int x = 0; x < fieldHuman.getSizeX(); x++) {
+    for (int y = 1; y < fieldHuman.getSizeY() - 1; y++) {
+        cout << setw(4) << y << "|";
+        for (int x = 1; x < fieldHuman.getSizeX() - 1; x++) {
             cout << fieldHuman.getPoint(x, y) << "|";
           }
-        cout << setw(5) << y+1 << "|";
-        for (int x = 0; x < fieldAiShow.getSizeX(); x++) {
-            cout << fieldAiShow.getPoint(x, y) << "|";
+        cout << setw(5) << y << "|";
+        for (int x = 0; x < fieldAi.getSizeX(); x++) {
+            cout << fieldAi.getPoint(x, y - 1) << "|";
           }
         cout << endl;
       }
@@ -491,35 +281,33 @@ public:
     do {
         cout << "\nОрудия готовы для залпа. Укажите строку и столбец: ";
         cin >> y >> x;
-        x--;
-        y--;
       }
-    while ((x < 0 || y < 0) || (x > 9 || y > 9) );
+    while ((x < 1 || y < 1) || (x > 10 || y > 10) );
 
     return fieldAiShow.Shot(x, y, fieldAiHide);
   }
 
-  int turnAi(Field &field) {
+  int turnAi(Field &fieldHumanShow, Field &fieldHumanHide) {
     int x = 0, y = 0;
 
     random_device rd;
     mt19937 mt(rd());
-    uniform_real_distribution <double> distx(0, field.getSizeX());
-    uniform_real_distribution <double> disty(0, field.getSizeY());
+    uniform_real_distribution <double> distx(1, fieldHumanHide.getSizeX() - 1);
+    uniform_real_distribution <double> disty(1, fieldHumanHide.getSizeY() - 1);
 
     do {
         x = distx(mt);
         y = disty(mt);
       }
-    while (field.getPoint(x, y) == MISS || field.getPoint(x, y) == DAMAGED);
-    return field.Shot(x, y, field);
+    while (fieldHumanShow.getPoint(x, y) == MISS || fieldHumanShow.getPoint(x, y) == DAMAGED);
+    return fieldHumanShow.Shot(x, y, fieldHumanHide);
   }
 
   bool setHumanShips(Field &field, Field &fieldHuman, Field &fieldAiShow) {
     int direction, startx = -1, starty = -1, endx = -1, endy = -1;
     bool check;
 
-    for(int i = 0; i < 2; i++) {//ОТЛАДОЧНОЕ УСЛОВИЕ (i < 2)
+    for(int i = 0; i < 10; i++) {//ОТЛАДОЧНОЕ УСЛОВИЕ (i < 2)
         do {
             do {
                 this->printBoard(fieldHuman, fieldAiShow, "Расстановка кораблей \n");
@@ -527,8 +315,6 @@ public:
                 cout << "\nУкажите строку и столбец начала ";
                 cout << field.getShip(i) -> GetDescCount() << "-палубного корабля: ";
                 cin >> starty >> startx;
-                startx--;
-                starty--;
 
                 cout << "\nУкажите направление корабля (0 - вертикальное, 1 - горизонтальное): ";
                 cin >> direction;
@@ -542,7 +328,7 @@ public:
                     endy = starty;
                   }
               }
-            while (((startx < 0 || starty < 0) || (startx > 9 || starty > 9)) || (field.getPoint(startx, starty) != EMPTY) || (endx < 0 || endy < 0) || (endx > 9 || endy > 9) || (field.getPoint(endx, endy) != EMPTY));
+            while (((startx < 1 || starty < 1) || (startx > 10 || starty > 10)) || (field.getPoint(startx, starty) != EMPTY) || (endx < 1 || endy < 1) || (endx > 10 || endy > 10) || (field.getPoint(endx, endy) != EMPTY));
             check = field.setShip(i, startx, starty, endx, endy);
           }
         while (!check);
@@ -550,19 +336,18 @@ public:
     return true;
   }
 
-  bool setAiShips(Field &field, Field &fieldHuman, Field &fieldAiShow) {
+  bool setAiShips(Field &field, Field &field0, Field &field1) {
     int direction, startx = 0, starty = 0, endx_v = 0, endy_v = 0, endx_h = 0, endy_h = 0;
 
     random_device rd;
     mt19937 mt(rd());
-    uniform_real_distribution <double> distx(0, field.getSizeX());
-    uniform_real_distribution <double> disty(0, field.getSizeY());
+    uniform_real_distribution <double> distx(1, field.getSizeX() - 1);
+    uniform_real_distribution <double> disty(1, field.getSizeY() - 1);
     uniform_real_distribution <double> distdir(0, 100);
 
     for (int i = 0; i < 10; i++) {
         do {
-            this->printBoard(fieldHuman, fieldAiShow, "Расстановка кораблей");
-
+            printBoard(field0, field1, "Расстановка кораблей");
             do {
                 do {
                     startx = distx(mt);
@@ -575,7 +360,7 @@ public:
                 endx_h = startx + field.getShip(i) -> GetDescCount() - 1;
                 endy_h = starty;
               }
-            while ((endx_h > 9 || endy_h > 9) || (endx_v > 9 || endy_v > 9) || (field.getPoint(startx, starty) != EMPTY || field.getPoint(endx_h, endy_h) != EMPTY) || (field.getPoint(endx_v, endy_v) != EMPTY));
+            while ((endx_h > 10 || endy_h > 10) || (endx_v > 10 || endy_v > 10) || (field.getPoint(startx, starty) != EMPTY || field.getPoint(endx_h, endy_h) != EMPTY) || (field.getPoint(endx_v, endy_v) != EMPTY));
           }
         while (!field.checkShipSpace(i, startx, starty, endx_h, endy_h) || !field.checkShipSpace(i, startx, starty, endx_v, endy_v));
 
@@ -599,16 +384,20 @@ private:
 };
 
 int main() {
-  Field fieldHuman, fieldAiShow, fieldAiHide;
+  Field fieldHumanHide(12, 12), fieldAiShow(10, 10), fieldAiHide(12, 12);
   Board board;
 
-  board.setAiShips(fieldAiHide, fieldHuman, fieldAiShow);
-  board.setHumanShips(fieldHuman, fieldHuman, fieldAiShow);
+  board.setAiShips(fieldAiHide, fieldHumanHide, fieldAiShow);
+  board.setHumanShips(fieldHumanHide, fieldHumanHide, fieldAiShow);
 
   while (true) {
-      board.printBoard(fieldHuman, fieldAiShow, "\t Морской бой. \t Новая игра \n");
+      board.printBoard(fieldHumanHide, fieldAiShow, "\t Морской бой. \t Новая игра \n");
       board.turnHuman(fieldAiShow, fieldAiHide);
-      board.turnAi(fieldHuman);
+
+      for (int i = 0; i < 20; i++) {
+          board.turnAi(fieldHumanHide, fieldHumanHide);
+
+        }
     }
 
   return 0;
