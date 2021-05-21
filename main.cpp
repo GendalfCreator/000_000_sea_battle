@@ -5,10 +5,9 @@
 
 using namespace std;
 
-#define VAR_NAME(var ,n) var ## n
 #define POINT_ITEM(a, x, y) (*((*(a + (y))) + (x)))
 
-enum pointStatus {EMPTY = '_', MISS = '*', SHIP = '#', DAMAGED = 'X'};
+enum pointStatus {EMPTY = '_', MISS = '.', SHIP = '#', DAMAGED = 'X'};
 
 class Ship {
 public:
@@ -66,6 +65,9 @@ public:
     return shipStatus;
   }
 
+  void SetShipStatus(bool status) {
+    shipStatus = status;
+  }
   ~Ship() {
 
   }
@@ -226,11 +228,13 @@ public:
 
   int Shot(int x, int y, Field &field) {
     if (field.getPoint(x, y) == EMPTY) {
-        setPoint(x, y, MISS);
+        this -> setPoint(x, y, MISS);
+        field.setPoint(x, y, MISS);
         return 0;
       }
     else if (field.getPoint(x, y) == SHIP){
-        setPoint(x, y, DAMAGED);
+        this -> setPoint(x, y, DAMAGED);
+        field.setPoint(x, y, DAMAGED);
         return 1;
       }
     else if (field.getPoint(x, y) == MISS){
@@ -250,10 +254,6 @@ private:
   Ship ship[10];
 };
 
-class FieldShow : public Field {
-
-};
-
 class Board {
 public:
   void printBoard(Field &fieldHuman, Field &fieldAi, string message) {
@@ -262,14 +262,14 @@ public:
     setiosflags(ios::right);
     cout << setw(5) << "" << "1 2 3 4 5 6 7 8 9 10";
     cout << setw(6) << "" << "1 2 3 4 5 6 7 8 9 10" << endl;
-    for (int y = 1; y < fieldHuman.getSizeY() - 1; y++) {
+    for (int y = 1; y < fieldHuman.getSizeY() - 1; y++) {//отладочные значения
         cout << setw(4) << y << "|";
         for (int x = 1; x < fieldHuman.getSizeX() - 1; x++) {
             cout << fieldHuman.getPoint(x, y) << "|";
           }
         cout << setw(5) << y << "|";
-        for (int x = 0; x < fieldAi.getSizeX(); x++) {
-            cout << fieldAi.getPoint(x, y - 1) << "|";
+        for (int x = 1; x < fieldAi.getSizeX() - 1; x++) {
+            cout << fieldAi.getPoint(x, y) << "|";
           }
         cout << endl;
       }
@@ -281,6 +281,8 @@ public:
     do {
         cout << "\nОрудия готовы для залпа. Укажите строку и столбец: ";
         cin >> y >> x;
+//        x--;
+//        y--;
       }
     while ((x < 1 || y < 1) || (x > 10 || y > 10) );
 
@@ -307,7 +309,7 @@ public:
     int direction, startx = -1, starty = -1, endx = -1, endy = -1;
     bool check;
 
-    for(int i = 0; i < 10; i++) {//ОТЛАДОЧНОЕ УСЛОВИЕ (i < 2)
+    for(int i = 0; i < 2; i++) {//ОТЛАДОЧНОЕ УСЛОВИЕ (i < 2)
         do {
             do {
                 this->printBoard(fieldHuman, fieldAiShow, "Расстановка кораблей \n");
@@ -375,29 +377,107 @@ public:
     return true;
   }
 
-  bool CheckWin() {
+  int fillAroundShip(Field &fieldAiShow, Field &fieldAiHide) {
+    for (int i = 0; i < 10; i++) {
+        int startX = fieldAiHide.getShip(i)->GetDescStartX();
+        int startY = fieldAiHide.getShip(i)->GetDescStartY();
+        int endX = fieldAiHide.getShip(i)->GetDescEndX();
+        int endY = fieldAiHide.getShip(i)->GetDescEndY();
+        int descCheck = 0;
 
-    return true;
+        if (!fieldAiHide.getShip(i)->GetShipStatus()) {
+            continue;
+          }
+
+        else if (startX == endX) {//Если вертикально
+            for (int j = 0; j < fieldAiHide.getShip(i)->GetDescCount(); j++) {//Проверить все клетки по длинне корабя на повреждения
+                char point = fieldAiHide.getPoint(startX, (startY + j));
+                if (point == DAMAGED) {
+                    descCheck++;
+                  }
+              }
+            if (descCheck == fieldAiHide.getShip(i)->GetDescCount()) {//Если весь корабль повреждён
+                fieldAiHide.getShip(i)->SetShipStatus(false);
+                fieldAiShow.getShip(i)->SetShipStatus(false);
+                for (int j = 0; j < fieldAiHide.getShip(i)->GetDescCount(); j++) {//поставить вокруг него MISS
+                    fieldAiShow.Shot(startX - 0, (startY + j) - 1, fieldAiHide);
+                    fieldAiShow.Shot(startX - 1, (startY + j) - 1, fieldAiHide);
+                    fieldAiShow.Shot(startX - 1, (startY + j) - 0, fieldAiHide);
+                    fieldAiShow.Shot(startX - 1, (startY + j) + 1, fieldAiHide);
+                    fieldAiShow.Shot(startX + 0, (startY + j) + 1, fieldAiHide);
+                    fieldAiShow.Shot(startX + 1, (startY + j) + 1, fieldAiHide);
+                    fieldAiShow.Shot(startX + 1, (startY + j) + 0, fieldAiHide);
+                    fieldAiShow.Shot(startX + 1, (startY + j) - 1, fieldAiHide);
+                  }
+              }
+          }
+
+        else if (startY == endY) {//Если горизонтально
+            for (int j = 0; j < fieldAiHide.getShip(i)->GetDescCount(); j++) {//Проверить все клетки по длинне корабя на повреждения
+                char point = fieldAiHide.getPoint((startX + j), startY);
+                if (point == DAMAGED) {
+                    descCheck++;
+                  }
+              }
+            if (descCheck == fieldAiHide.getShip(i)->GetDescCount()) {//Если весь корабль повреждён
+                fieldAiHide.getShip(i)->SetShipStatus(false);
+                for (int j = 0; j < fieldAiHide.getShip(i)->GetDescCount(); j++) {//поставить вокруг него MISS
+                    fieldAiShow.Shot((startX + j) - 0, startY - 1, fieldAiHide);
+                    fieldAiShow.Shot((startX + j) - 1, startY - 1, fieldAiHide);
+                    fieldAiShow.Shot((startX + j) - 1, startY - 0, fieldAiHide);
+                    fieldAiShow.Shot((startX + j) - 1, startY + 1, fieldAiHide);
+                    fieldAiShow.Shot((startX + j) + 0, startY + 1, fieldAiHide);
+                    fieldAiShow.Shot((startX + j) + 1, startY + 1, fieldAiHide);
+                    fieldAiShow.Shot((startX + j) + 1, startY + 0, fieldAiHide);
+                    fieldAiShow.Shot((startX + j) + 1, startY - 1, fieldAiHide);
+                  }
+              }
+          }
+      }
+    return 0;
   }
+
+  bool CheckWin(Field fieldPlayerShow) {
+    int checkShips = 0;
+    for (int i = 0; i < 10; i++) {
+        if (!fieldPlayerShow.getShip(i)->GetShipStatus()) {
+            checkShips++;
+          }
+      }
+    if (checkShips == 10) {
+        return true;
+      }
+    else {
+        return false;
+      }
+  }
+
 private:
 
 };
 
 int main() {
-  Field fieldHumanHide(12, 12), fieldAiShow(10, 10), fieldAiHide(12, 12);
+  Field fieldHumanHide(12, 12), fieldAiShow(12, 12), fieldAiHide(12, 12);
   Board board;
 
-  board.setAiShips(fieldAiHide, fieldHumanHide, fieldAiShow);
-  board.setHumanShips(fieldHumanHide, fieldHumanHide, fieldAiShow);
+  board.setAiShips(fieldAiHide, fieldHumanHide, fieldAiHide);
+  //board.setHumanShips(fieldHumanHide, fieldHumanHide, fieldAiShow);
 
   while (true) {
       board.printBoard(fieldHumanHide, fieldAiShow, "\t Морской бой. \t Новая игра \n");
       board.turnHuman(fieldAiShow, fieldAiHide);
 
-      for (int i = 0; i < 20; i++) {
-          board.turnAi(fieldHumanHide, fieldHumanHide);
+//      for (int i = 0; i < 2; i++) {
+//          board.turnAi(fieldHumanHide, fieldHumanHide);
+//        }
 
+      board.fillAroundShip(fieldAiShow, fieldAiHide);
+
+      if (board.CheckWin(fieldAiShow)) {
+          cout << "\tEnd game\tHuman win" << endl;
+          break;
         }
+
     }
 
   return 0;
